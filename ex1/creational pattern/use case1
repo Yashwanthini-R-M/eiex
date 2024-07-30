@@ -1,0 +1,73 @@
+// Product class
+class GitHubAccount {
+    private String username;
+    private String email;
+    private String profilePicture;
+    private String bio;
+    private int publicRepositories;
+
+    public GitHubAccount(String username, String email, String profilePicture, String bio, int publicRepositories) {
+        this.username = username;
+        this.email = email;
+        this.profilePicture = profilePicture;
+        this.bio = bio;
+        this.publicRepositories = publicRepositories;
+    }
+
+    @Override
+    public String toString() {
+        return "GitHubAccount{" +
+                "username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", profilePicture='" + profilePicture + '\'' +
+                ", bio='" + bio + '\'' +
+                ", publicRepositories=" + publicRepositories +
+                '}';
+    }
+}
+
+// Builder class
+class GitHubAccountBuilder {
+    private String username;
+    private String email;
+    private String profilePicture = "default.png";
+    private String bio = "";
+    private int publicRepositories = 0;
+
+    public GitHubAccountBuilder(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
+
+    public GitHubAccountBuilder setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+        return this;
+    }
+
+    public GitHubAccountBuilder setBio(String bio) {
+        this.bio = bio;
+        return this;
+    }
+
+    public GitHubAccountBuilder setPublicRepositories(int publicRepositories) {
+        this.publicRepositories = publicRepositories;
+        return this;
+    }
+
+    public GitHubAccount build() {
+        return new GitHubAccount(username, email, profilePicture, bio, publicRepositories);
+    }
+}
+
+// Client code
+public class BuilderPatternDemo {
+    public static void main(String[] args) {
+        GitHubAccount account = new GitHubAccountBuilder("jane_doe", "jane@example.com")
+                .setProfilePicture("jane_profile.png")
+                .setBio("Software Developer")
+                .setPublicRepositories(5)
+                .build();
+
+        System.out.println(account);
+    }
+}
