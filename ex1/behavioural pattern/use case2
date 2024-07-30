@@ -1,0 +1,72 @@
+// Handler interface
+abstract class LoanApprover {
+    protected LoanApprover nextApprover;
+
+    public void setNextApprover(LoanApprover nextApprover) {
+        this.nextApprover = nextApprover;
+    }
+
+    public abstract void approveLoan(double amount);
+}
+
+// Concrete Handler for Clerk
+class Clerk extends LoanApprover {
+    @Override
+    public void approveLoan(double amount) {
+        if (amount <= 5000) {
+            System.out.println("Clerk approved loan of $" + amount);
+        } else {
+            if (nextApprover != null) {
+                nextApprover.approveLoan(amount);
+            }
+        }
+    }
+}
+
+// Concrete Handler for Manager
+class Manager extends LoanApprover {
+    @Override
+    public void approveLoan(double amount) {
+        if (amount <= 10000) {
+            System.out.println("Manager approved loan of $" + amount);
+        } else {
+            if (nextApprover != null) {
+                nextApprover.approveLoan(amount);
+            }
+        }
+    }
+}
+
+// Concrete Handler for Director
+class Director extends LoanApprover {
+    @Override
+    public void approveLoan(double amount) {
+        if (amount > 10000) {
+            System.out.println("Director approved loan of $" + amount);
+        } else {
+            if (nextApprover != null) {
+                nextApprover.approveLoan(amount);
+            }
+        }
+    }
+}
+
+// Client
+public class ChainOfResponsibilityDemo {
+    public static void main(String[] args) {
+        // Set up the chain of responsibility
+        LoanApprover clerk = new Clerk();
+        LoanApprover manager = new Manager();
+        LoanApprover director = new Director();
+
+        clerk.setNextApprover(manager);
+        manager.setNextApprover(director);
+
+        // Test different loan amounts
+        double[] loanAmounts = {2000, 7000, 15000};
+
+        for (double amount : loanAmounts) {
+            clerk.approveLoan(amount);
+        }
+    }
+}
