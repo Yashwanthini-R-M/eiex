@@ -1,0 +1,240 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+class Classroom {
+    private String name;
+    private Map<String, Student> students;
+    private List<Assignment> assignments;
+    private static final Logger LOGGER = Logger.getLogger(Classroom.class.getName());
+
+    public Classroom(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Classroom name cannot be null or empty");
+        }
+        this.name = name;
+        this.students = new HashMap<>();
+        this.assignments = new ArrayList<>();
+        LOGGER.log(Level.INFO, "Classroom {0} created", name);
+    }
+
+    public String addStudent(Student student) {
+        if (student == null) {
+            throw new IllegalArgumentException("Student cannot be null");
+        }
+        if (!students.containsKey(student.getId())) {
+            students.put(student.getId(), student);
+            LOGGER.log(Level.INFO, "Student {0} enrolled in {1}", new Object[]{student.getId(), name});
+            return "Student " + student.getId() + " has been enrolled in " + this.name + ".";
+        }
+        return "Student " + student.getId() + " is already enrolled in " + this.name + ".";
+    }
+
+    public String scheduleAssignment(Assignment assignment) {
+        if (assignment == null) {
+            throw new IllegalArgumentException("Assignment cannot be null");
+        }
+        assignments.add(assignment);
+        LOGGER.log(Level.INFO, "Assignment for {0} scheduled", name);
+        return "Assignment for " + this.name + " has been scheduled.";
+    }
+
+    public Student getStudent(String studentId) {
+        if (studentId == null || studentId.isEmpty()) {
+            throw new IllegalArgumentException("Student ID cannot be null or empty");
+        }
+        return students.get(studentId);
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
+}
+
+class Student {
+    private String id;
+    private List<Assignment> submissions;
+    private static final Logger LOGGER = Logger.getLogger(Student.class.getName());
+
+    public Student(String id) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("Student ID cannot be null or empty");
+        }
+        this.id = id;
+        this.submissions = new ArrayList<>();
+        LOGGER.log(Level.INFO, "Student {0} created", id);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String submitAssignment(Assignment assignment) {
+        if (assignment == null) {
+            throw new IllegalArgumentException("Assignment cannot be null");
+        }
+        submissions.add(assignment);
+        LOGGER.log(Level.INFO, "Assignment submitted by Student {0} in {1}", new Object[]{id, assignment.getClassroom()});
+        return "Assignment submitted by Student " + this.id + " in " + assignment.getClassroom() + ".";
+    }
+}
+
+class Assignment {
+    private String classroom;
+    private String details;
+    private static final Logger LOGGER = Logger.getLogger(Assignment.class.getName());
+
+    public Assignment(String classroom, String details) {
+        if (classroom == null || classroom.isEmpty()) {
+            throw new IllegalArgumentException("Classroom cannot be null or empty");
+        }
+        if (details == null || details.isEmpty()) {
+            throw new IllegalArgumentException("Details cannot be null or empty");
+        }
+        this.classroom = classroom;
+        this.details = details;
+        LOGGER.log(Level.INFO, "Assignment created for classroom {0} with details {1}", new Object[]{classroom, details});
+    }
+
+    public String getClassroom() {
+        return classroom;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+}
+
+class VirtualClassroomManager {
+    private Map<String, Classroom> classrooms;
+    private static final Logger LOGGER = Logger.getLogger(VirtualClassroomManager.class.getName());
+
+    public VirtualClassroomManager() {
+        this.classrooms = new HashMap<>();
+        LOGGER.log(Level.INFO, "VirtualClassroomManager initialized");
+    }
+
+    public String addClassroom(String className) {
+        if (className == null || className.isEmpty()) {
+            throw new IllegalArgumentException("Classroom name cannot be null or empty");
+        }
+        if (!classrooms.containsKey(className)) {
+            classrooms.put(className, new Classroom(className));
+            return "Classroom " + className + " has been created.";
+        }
+        return "Classroom " + className + " already exists.";
+    }
+
+    public String addStudent(String studentId, String className) {
+        if (studentId == null || studentId.isEmpty()) {
+            throw new IllegalArgumentException("Student ID cannot be null or empty");
+        }
+        if (className == null || className.isEmpty()) {
+            throw new IllegalArgumentException("Classroom name cannot be null or empty");
+        }
+        Classroom classroom = classrooms.get(className);
+        if (classroom != null) {
+            Student student = new Student(studentId);
+            return classroom.addStudent(student);
+        }
+        return "Classroom " + className + " does not exist.";
+    }
+
+    public String scheduleAssignment(String className, String details) {
+        if (className == null || className.isEmpty()) {
+            throw new IllegalArgumentException("Classroom name cannot be null or empty");
+        }
+        if (details == null || details.isEmpty()) {
+            throw new IllegalArgumentException("Details cannot be null or empty");
+        }
+        Classroom classroom = classrooms.get(className);
+        if (classroom != null) {
+            Assignment assignment = new Assignment(className, details);
+            return classroom.scheduleAssignment(assignment);
+        }
+        return "Classroom " + className + " does not exist.";
+    }
+
+    public String submitAssignment(String studentId, String className, String details) {
+        if (studentId == null || studentId.isEmpty()) {
+            throw new IllegalArgumentException("Student ID cannot be null or empty");
+        }
+        if (className == null || className.isEmpty()) {
+            throw new IllegalArgumentException("Classroom name cannot be null or empty");
+        }
+        if (details == null || details.isEmpty()) {
+            throw new IllegalArgumentException("Details cannot be null or empty");
+        }
+        Classroom classroom = classrooms.get(className);
+        if (classroom != null) {
+            Student student = classroom.getStudent(studentId);
+            if (student != null) {
+                Assignment assignment = new Assignment(className, details);
+                return student.submitAssignment(assignment);
+            }
+            return "Student " + studentId + " is not enrolled in " + className + ".";
+        }
+        return "Classroom " + className + " does not exist.";
+    }
+
+    public String handleCommand(String command) {
+        if (command == null || command.isEmpty()) {
+            throw new IllegalArgumentException("Command cannot be null or empty");
+        }
+        try {
+            String[] parts = command.split(" ", 3);
+            String cmd = parts[0];
+
+            switch (cmd) {
+                case "add_classroom":
+                    return addClassroom(parts[1]);
+                case "add_student":
+                    return addStudent(parts[1], parts[2]);
+                case "schedule_assignment":
+                    return scheduleAssignment(parts[1], parts[2]);
+                case "submit_assignment":
+                    String[] submissionParts = parts[2].split(" ", 2);
+                    return submitAssignment(parts[1], submissionParts[0], submissionParts[1]);
+                default:
+                    return "Unknown command.";
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error handling command", e);
+            return "Error handling command: " + e.getMessage();
+        }
+    }
+}
+
+public class VirtualClassroomApp {
+    private static final Logger LOGGER = Logger.getLogger(VirtualClassroomApp.class.getName());
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        VirtualClassroomManager manager = new VirtualClassroomManager();
+
+        try {
+            String command;
+            boolean running = true;
+            while (running) {
+                System.out.println("Enter a command: ");
+                command = scanner.nextLine();
+                if (command.equalsIgnoreCase("exit")) {
+                    LOGGER.log(Level.INFO, "Exiting application");
+                    running = false;
+                } else {
+                    System.out.println(manager.handleCommand(command));
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unexpected error in main loop", e);
+        } finally {
+            scanner.close();
+            LOGGER.log(Level.INFO, "Application terminated");
+        }
+    }
+}
