@@ -1,0 +1,89 @@
+import java.util.Stack;
+
+// Command interface
+interface Command {
+    void execute();
+    void undo();
+}
+
+// Receiver class for Light
+class Light {
+    public void turnOn() {
+        System.out.println("Light is ON");
+    }
+
+    public void turnOff() {
+        System.out.println("Light is OFF");
+    }
+}
+
+// Concrete Command for turning on light
+class LightOnCommand implements Command {
+    private Light light;
+
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
+
+    @Override
+    public void execute() {
+        light.turnOn();
+    }
+
+    @Override
+    public void undo() {
+        light.turnOff();
+    }
+}
+
+// Concrete Command for turning off light
+class LightOffCommand implements Command {
+    private Light light;
+
+    public LightOffCommand(Light light) {
+        this.light = light;
+    }
+
+    @Override
+    public void execute() {
+        light.turnOff();
+    }
+
+    @Override
+    public void undo() {
+        light.turnOn();
+    }
+}
+
+// Invoker class
+class RemoteControl {
+    private Stack<Command> commandHistory = new Stack<>();
+
+    public void executeCommand(Command command) {
+        command.execute();
+        commandHistory.push(command);
+    }
+
+    public void undoLastCommand() {
+        if (!commandHistory.isEmpty()) {
+            Command command = commandHistory.pop();
+            command.undo();
+        }
+    }
+}
+
+// Client
+public class CommandPatternDemo {
+    public static void main(String[] args) {
+        RemoteControl remote = new RemoteControl();
+
+        Light livingRoomLight = new Light();
+
+        Command lightOn = new LightOnCommand(livingRoomLight);
+        Command lightOff = new LightOffCommand(livingRoomLight);
+
+        remote.executeCommand(lightOn);    // Light is ON
+        remote.executeCommand(lightOff);   // Light is OFF
+        remote.undoLastCommand();          // Light is ON
+    }
+}
