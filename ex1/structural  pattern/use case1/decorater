@@ -1,0 +1,62 @@
+// Component interface
+interface Admission {
+    String process();
+}
+
+// Concrete component
+class BasicAdmission implements Admission {
+    @Override
+    public String process() {
+        return "Basic Admission Process";
+    }
+}
+
+// Abstract Decorator
+abstract class AdmissionDecorator implements Admission {
+    protected Admission decoratedAdmission;
+
+    public AdmissionDecorator(Admission decoratedAdmission) {
+        this.decoratedAdmission = decoratedAdmission;
+    }
+
+    public String process() {
+        return decoratedAdmission.process();
+    }
+}
+
+// Concrete Decorator for Merit-based Scholarship
+class MeritBasedScholarship extends AdmissionDecorator {
+    public MeritBasedScholarship(Admission decoratedAdmission) {
+        super(decoratedAdmission);
+    }
+
+    @Override
+    public String process() {
+        return super.process() + " with Merit-based Scholarship";
+    }
+}
+
+// Concrete Decorator for Sports Quota
+class SportsQuota extends AdmissionDecorator {
+    public SportsQuota(Admission decoratedAdmission) {
+        super(decoratedAdmission);
+    }
+
+    @Override
+    public String process() {
+        return super.process() + " with Sports Quota";
+    }
+}
+
+// Client code
+public class DecoratorPatternDemo {
+    public static void main(String[] args) {
+        Admission basicAdmission = new BasicAdmission();
+        Admission meritScholarshipAdmission = new MeritBasedScholarship(basicAdmission);
+        Admission sportsQuotaAdmission = new SportsQuota(basicAdmission);
+
+        System.out.println(basicAdmission.process());
+        System.out.println(meritScholarshipAdmission.process());
+        System.out.println(sportsQuotaAdmission.process());
+    }
+}
