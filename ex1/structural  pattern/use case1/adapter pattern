@@ -1,0 +1,46 @@
+// Existing interface
+interface StudentInfo {
+    String getName();
+    int getMarks();
+}
+
+// External system class (adaptee)
+class ExternalStudentSystem {
+    public String fetchStudentName() {
+        return "Kumar";
+    }
+
+    public int fetchStudentMarks() {
+        return 90;
+    }
+}
+
+// Adapter class
+class StudentInfoAdapter implements StudentInfo {
+    private ExternalStudentSystem externalStudentSystem;
+
+    public StudentInfoAdapter(ExternalStudentSystem externalStudentSystem) {
+        this.externalStudentSystem = externalStudentSystem;
+    }
+
+    @Override
+    public String getName() {
+        return externalStudentSystem.fetchStudentName();
+    }
+
+    @Override
+    public int getMarks() {
+        return externalStudentSystem.fetchStudentMarks();
+    }
+}
+
+// Client code
+public class AdapterPatternDemo {
+    public static void main(String[] args) {
+        ExternalStudentSystem externalSystem = new ExternalStudentSystem();
+        StudentInfo student = new StudentInfoAdapter(externalSystem);
+
+        System.out.println("Student Name: " + student.getName());
+        System.out.println("Student Marks: " + student.getMarks());
+    }
+}
